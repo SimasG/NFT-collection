@@ -22,3 +22,10 @@
 
 - I get "MetaMask - RPC Error: Request of type 'wallet_requestPermissions' already pending for origin http://localhost:3000." every 5 seconds
 - If I click on "Connect your Wallet", I don't get a MetaMask login popup. Instead, I get an error: "Error: User Rejected". The only way to log into the wallet is by manually going to the MetaMask extension and opening the popup.
+
+3. What's the use of this block?
+   // Check if presale has started and ended
+   const \_presaleStarted = checkIfPresaleStarted();
+   if (\_presaleStarted) {
+   checkIfPresaleEnded();
+   }

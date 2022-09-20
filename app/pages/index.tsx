@@ -154,7 +154,7 @@ const Home: NextPage = () => {
       // _presaleEnded is a Big Number, so we are using the lt(less than function) instead of `<`
       // Date.now()/1000 returns the current time in seconds
       // We compare if the _presaleEnded timestamp is less than the current time
-      // which means presale has ended
+      // which means presale has ended (ethers syntax)
       const hasEnded = _presaleEnded.lt(Math.floor(Date.now() / 1000));
       if (hasEnded) {
         setPresaleEnded(true);
@@ -184,11 +184,9 @@ const Home: NextPage = () => {
       // We will get the signer now to extract the address of the currently connected MetaMask account
       const signer = await getProviderOrSigner(true);
       // Get the address associated to the signer which is connected to MetaMask
+      // @ts-ignore
       const address = await signer.getAddress(); // "getAddress()" is an ethers method
       // It seems that (at least some) addresses in injected wallets have uppercase letters (why tho?)
-      console.log("current address:", address);
-      console.log("_owner:", _owner);
-
       if (address.toLowerCase() === _owner.toLowerCase()) {
         setIsOwner(true);
       }
@@ -263,18 +261,19 @@ const Home: NextPage = () => {
       connectWallet();
 
       // ** What's the use of this block?
-      // Check if presale has started and ended
-      const _presaleStarted = checkIfPresaleStarted();
-      if (_presaleStarted) {
-        checkIfPresaleEnded();
-      }
+      // // Check if presale has started and ended
+      // const _presaleStarted = checkIfPresaleStarted();
+      // if (_presaleStarted) {
+      //   checkIfPresaleEnded();
+      // }
 
       // ** Why no "await" here?
       getTokenIdsMinted();
 
-      // Set an interval which gets called every 5 seconds to check presale has ended
+      // Set an interval which gets called every 5 seconds to check presale has started & ended
       const presaleEndedInterval = setInterval(async function () {
         const _presaleStarted = await checkIfPresaleStarted();
+        console.log("Checking if presale started:", _presaleStarted);
         if (_presaleStarted) {
           const _presaleEnded = await checkIfPresaleEnded();
           if (_presaleEnded) {
@@ -295,7 +294,6 @@ const Home: NextPage = () => {
       renderButton: Returns a button based on the state of the dapp
     */
   const renderButton = () => {
-    console.log("renderButton func ran");
     // If wallet is not connected, return a button which allows them to connect their wllet
     if (!walletConnected) {
       return (
@@ -353,7 +351,6 @@ const Home: NextPage = () => {
     }
   };
 
-  // ** Do we have any logic to ensure we can't re-launch the same NFT collection?
   return (
     <div>
       <Head>
@@ -365,7 +362,7 @@ const Home: NextPage = () => {
         <div>
           <h1 className="title">Welcome to Crypto Devs!</h1>
           <div className="description">
-            Its an NFT collection for developers in Crypto.
+            It's an NFT collection for developers in Crypto.
           </div>
           <div className="description">
             {tokenIdsMinted}/20 have been minted
