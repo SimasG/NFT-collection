@@ -271,7 +271,6 @@ const Home: NextPage = () => {
 
             // `checkIfPresaleStarted` also checks if current user is owner (for correct btn re-rendering)
             const _presaleStarted = checkIfPresaleStarted();
-            // const _presaleEnded = checkIfPresaleEnded();
 
             const randomFunc = async () => {
                 const _presaleStarted = await checkIfPresaleStarted();
