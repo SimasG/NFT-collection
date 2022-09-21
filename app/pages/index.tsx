@@ -4,6 +4,7 @@ import Head from "next/head";
 import React, { useEffect, useRef, useState } from "react";
 import Web3Modal from "web3modal";
 import { abi, NFT_CONTRACT_ADDRESS } from "../constants/index";
+import { walletconnect } from "web3modal/dist/providers/connectors";
 
 const Home: NextPage = () => {
   // walletConnected keep track of whether the user's wallet is connected or not
@@ -18,6 +19,8 @@ const Home: NextPage = () => {
   const [isOwner, setIsOwner] = useState(false);
   // tokenIdsMinted keeps track of the number of tokenIds that have been minted
   const [tokenIdsMinted, setTokenIdsMinted] = useState("0");
+  const [saleEnded, setSaleEnded] = useState(false);
+  const maxTokenIds = 20;
   // Create a reference to the Web3 Modal (used for connecting to Metamask) which persists as long as the page is open
   const web3ModalRef = useRef();
 
@@ -241,6 +244,7 @@ const Home: NextPage = () => {
 
     if (needSigner) {
       const signer = web3Provider.getSigner();
+
       return signer;
     }
     return web3Provider;
@@ -272,8 +276,9 @@ const Home: NextPage = () => {
 
       // Set an interval which gets called every 5 seconds to check presale has started & ended
       const presaleEndedInterval = setInterval(async function () {
+        // ** `checkIfPresaleStarted` is causing MetaMask to pop up every 5s if it's not connect to dapp
+        // ** Unable to resolve easily
         const _presaleStarted = await checkIfPresaleStarted();
-        console.log("Checking if presale started:", _presaleStarted);
         if (_presaleStarted) {
           const _presaleEnded = await checkIfPresaleEnded();
           if (_presaleEnded) {
@@ -289,6 +294,10 @@ const Home: NextPage = () => {
       }, 5 * 1000);
     }
   }, [walletConnected]);
+
+  useEffect(() => {
+    if (parseInt(tokenIdsMinted) >= maxTokenIds) setSaleEnded(true);
+  }, [saleEnded]);
 
   /*
       renderButton: Returns a button based on the state of the dapp
@@ -342,12 +351,16 @@ const Home: NextPage = () => {
     }
 
     // If presale started and has ended, its time for public minting
-    if (presaleStarted && presaleEnded) {
+    if (presaleStarted && presaleEnded && !saleEnded) {
       return (
         <button className="button" onClick={publicMint}>
           Public Mint 🚀
         </button>
       );
+    }
+
+    if (presaleStarted && presaleEnded && saleEnded) {
+      return <button className="button bg-red-500">Sold out 🙏🔥</button>;
     }
   };
 

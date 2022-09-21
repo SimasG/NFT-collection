@@ -15,17 +15,26 @@
 
 # Things that don't work well:
 
-1. No auto re-rendering after walletConnected state changes or I change an account within the wallet.
+1. MetaMask problems (WIP)
+   I'm having a couple of issues with MetaMask:
+
+- If I log out of MetaMask, I don't get the wallet login popups, even if I click on "Connect your Wallet" button. Instead, I get a console error: "Error: User Rejected". The only way to log into the wallet is by manually clicking on the MetaMask extension to open the popup. I guess it makes sense since `web3ModalRef.current.connect()` probably only works for users already logged into their browser wallets. Is there a way to cause the MetaMask wallet popup to appear on the initial render & when clicking "Connect your Wallet" button? -> Example: https://testnets.opensea.io/
+
+- If I'm logged in with MetaMask (not connected to the dapp though) & I cancel the initial MetaMask popup, it keeps popping up every 5 seconds because of `presaleEndedInterval's` `checkIfPresaleStarted()`. Is there a way to adjust the UI logic to have the MetaMask popup appear automatically only on the initial render & then only if the user clicks on the "connect wallet" button?
+
+2. No auto re-rendering after walletConnected state changes or I change an account within the wallet.
    The changes are displayed in UI only after a manual refresh. Should be a fix somewhere in the useEffect.
-2. Logging out of MetaMask
-   If I log out of MetaMask, I see the following problems:
-
-- I get "MetaMask - RPC Error: Request of type 'wallet_requestPermissions' already pending for origin http://localhost:3000." every 5 seconds
-- If I click on "Connect your Wallet", I don't get a MetaMask login popup. Instead, I get an error: "Error: User Rejected". The only way to log into the wallet is by manually going to the MetaMask extension and opening the popup.
-
 3. What's the use of this block?
    // Check if presale has started and ended
    const \_presaleStarted = checkIfPresaleStarted();
    if (\_presaleStarted) {
    checkIfPresaleEnded();
    }
+
+it wont popup if youre not logged into metamask and thats not something you can control on the frontend side of things unfortunately.
+
+as for making it pop up when the website first loads, you can call the connect function within a useEffect that has an empty dependency array (i.e. runs only on first render)
+
+you can wrap the checkIfPresaleStarted function to only be run if a provider/signer is set already. the way we do it in sophomore isnt ideal, but you can perhaps set a state variable from within getProviderOrSigner to be true/false depending on if a user successfully connected wallet or not
+to look into better wallet connection practices i think the Celo Track right now has the best functionality
+the sophomore things work but you run into issues like you mentioned
